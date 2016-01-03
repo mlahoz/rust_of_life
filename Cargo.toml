@@ -1,0 +1,4 @@
+[package]
+name = "rust_of_life"
+version = "0.1.0"
+authors = ["Miguel Lahoz <miguel.lahoz@gmail.com>"]
