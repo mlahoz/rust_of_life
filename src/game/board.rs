@@ -31,6 +31,16 @@ impl Board {
             Err("Invalid indexes")
         }
     }
+
+    pub fn toggle(&mut self, width: usize, height: usize) -> Result<(), &str> {
+        if width < self.width && height < self.height {
+            self.board[height][width] = !self.board[height][width];
+            Ok(())
+        } else {
+            Err("Invalid indexes")
+        }
+    }
+
 }
 
 impl fmt::Display for Board {
@@ -135,4 +145,28 @@ fn board_get() {
     assert!(b.get(W, 0).is_err());
     assert!(b.get(0, H).is_err());
     assert_eq!(b.get(W, H).err(), Some("Invalid indexes"));
+}
+
+#[test]
+fn board_toggle() {
+    const W: usize = 6;
+    const H: usize = 4;
+
+    let mut b = Board::new(W, H);
+
+    assert_eq!(b.get(0, 0).ok(), Some(false));
+    assert!(b.toggle(0, 0).is_ok());
+    assert_eq!(b.get(0, 0).ok(), Some(true));
+    assert!(b.toggle(0, 0).is_ok());
+    assert_eq!(b.get(0, 0).ok(), Some(false));
+
+    assert_eq!(b.get(4, 1).ok(), Some(false));
+    assert!(b.toggle(4, 1).is_ok());
+    assert_eq!(b.get(4, 1).ok(), Some(true));
+    assert!(b.toggle(4, 1).is_ok());
+    assert_eq!(b.get(4, 1).ok(), Some(false));
+
+    assert!(b.toggle(W, 0).is_err());
+    assert!(b.toggle(0, H).is_err());
+    assert_eq!(b.toggle(W, H).err(), Some("Invalid indexes"));
 }
