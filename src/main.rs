@@ -1,7 +1,7 @@
 extern crate rust_of_life;
 
-use rust_of_life::game::board;
 use rust_of_life::game::command;
+use rust_of_life::game::engine;
 use std::io;
 use std::io::Write;
 use std::io::stdout;
@@ -9,13 +9,7 @@ use std::io::stdout;
 fn main() {
     println!("Welcome to Rust of Live!");
 
-    let mut board = board::Board::new(10, 10);
-    board.set(0, 0, true).is_ok();
-    board.set(9, 0, true).is_ok();
-    board.set(10, 0, true).is_err(); // shouldn't work
-    println!("[9 0]: {}", board.get(9, 0).ok().unwrap());
-
-    println!("Board [{}, {}]\n{}", board.height, board.width, board);
+    let mut engine = engine::Engine::new();
 
     loop {
         // Prompt
@@ -33,10 +27,14 @@ fn main() {
         if result.is_ok() {
             let command = result.ok().unwrap();
 
-            println!("Your command: {}", command);
-
             if let command::Command::Quit = command {
                 break;
+            } else {
+                match engine.process_command(command) {
+                    Ok(None) => {},
+                    Ok(Some(board)) => println!("{}", board),
+                    Err(error) => println!("Error processing command: {}", error),
+                }
             }
         } else {
             println!("{}", result.err().unwrap());

@@ -4,7 +4,7 @@ pub enum Command {
     New { width: usize, height: usize},
     Toggle { x: usize, y: usize},
     Play,
-    Print,
+    Show,
     Quit
 }
 
@@ -16,17 +16,21 @@ pub fn parse_command(input: &str) -> Result<Command, &str> {
         match tokens[0] {
             "quit" | "q" => return Ok(Command::Quit),
             "play" | "p" => return Ok(Command::Play),
-            "print" | "pr" => return Ok(Command::Print),
+            "show" | "s" => return Ok(Command::Show),
             c @ "new" | c @ "n" | c @ "toggle" | c @ "t" => {
                 if tokens.len() == 3 {
                     let first: usize = match tokens[1].parse() {
                         Ok(num) => num,
-                        Err(_) => return Err("Invalid first argument value"),
+                        Err(_) => return Err("Invalid first argument value: not a number"),
                     };
                     let second: usize = match tokens[2].parse() {
                         Ok(num) => num,
-                        Err(_) => return Err("Invalid second argument value"),
+                        Err(_) => return Err("Invalid second argument value: not a number"),
                     };
+
+                    if first == 0 || second == 0 {
+                        return Err("Invalid argument value");
+                    }
 
                     match c {
                         "new" | "n" => return Ok(Command::New{ width: first, height: second}),
@@ -51,7 +55,7 @@ impl fmt::Display for Command {
         match *self {
             Command::Quit => write!(f, "Quit"),
             Command::Play => write!(f, "Play"),
-            Command::Print => write!(f, "Print"),
+            Command::Show => write!(f, "Show"),
             Command::New { width, height } => write!(f, "New [width: {} height: {}]", width, height),
             Command::Toggle { x, y } => write!(f, "Toggle [x: {} y: {}]", x, y),
         }
@@ -75,10 +79,10 @@ fn command_new() {
     if let Command::New { width: 30, height: 20} = pc { assert!(true); } else { assert!(false); }
 
     let error = parse_command("new thirty twenty").err().unwrap();
-    assert_eq!(error, "Invalid first argument value");
+    assert_eq!(error, "Invalid first argument value: not a number");
 
     let error = parse_command("new 30 twenty").err().unwrap();
-    assert_eq!(error, "Invalid second argument value");
+    assert_eq!(error, "Invalid second argument value: not a number");
 
     let error = parse_command("new 30").err().unwrap();
     assert_eq!(error, "Invalid syntax for command");
@@ -88,6 +92,12 @@ fn command_new() {
 
     let error = parse_command("ne 30 20").err().unwrap();
     assert_eq!(error, "Unknown command");
+
+    let error = parse_command("new 0 10").err().unwrap();
+    assert_eq!(error, "Invalid argument value");
+
+    let error = parse_command("new 10 0").err().unwrap();
+    assert_eq!(error, "Invalid argument value");
 }
 
 #[test]
@@ -106,10 +116,10 @@ fn command_toggle() {
     if let Command::Toggle { x: 4, y: 7} = pc { assert!(true); } else { assert!(false); }
 
     let error = parse_command("toggle four seven").err().unwrap();
-    assert_eq!(error, "Invalid first argument value");
+    assert_eq!(error, "Invalid first argument value: not a number");
 
     let error = parse_command("toggle 4 seven").err().unwrap();
-    assert_eq!(error, "Invalid second argument value");
+    assert_eq!(error, "Invalid second argument value: not a number");
 
     let error = parse_command("toggle 4").err().unwrap();
     assert_eq!(error, "Invalid syntax for command");
@@ -119,6 +129,12 @@ fn command_toggle() {
 
     let error = parse_command("tog 4 7").err().unwrap();
     assert_eq!(error, "Unknown command");
+
+    let error = parse_command("toggle 0 10").err().unwrap();
+    assert_eq!(error, "Invalid argument value");
+
+    let error = parse_command("toggle 10 0").err().unwrap();
+    assert_eq!(error, "Invalid argument value");
 }
 
 #[test]
@@ -138,17 +154,17 @@ fn command_play() {
 }
 
 #[test]
-fn command_print() {
-    let c = Command::Print;
-    assert_eq!(c.to_string(), "Print");
+fn command_show() {
+    let c = Command::Show;
+    assert_eq!(c.to_string(), "Show");
 
-    let pc = parse_command("print").ok().unwrap();
-    if let Command::Print = pc { assert!(true); } else { assert!(false); }
+    let pc = parse_command("show").ok().unwrap();
+    if let Command::Show = pc { assert!(true); } else { assert!(false); }
 
-    let pc = parse_command("pr").ok().unwrap();
-    if let Command::Print = pc { assert!(true); } else { assert!(false); }
+    let pc = parse_command("s").ok().unwrap();
+    if let Command::Show = pc { assert!(true); } else { assert!(false); }
 
-    let error = parse_command("pri").err().unwrap();
+    let error = parse_command("sh").err().unwrap();
     assert_eq!(error, "Unknown command");
 }
 
