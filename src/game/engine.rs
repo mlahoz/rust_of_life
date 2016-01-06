@@ -18,7 +18,12 @@ impl Engine {
 
     fn toggle(&mut self, x: usize, y: usize) -> Result<(), &str> {
         if self.board.is_some() {
-            self.board.as_mut().unwrap().toggle(x - 1, y - 1)
+            let board = self.board.as_mut().unwrap();
+            if x == 0 || x > board.width || y == 0 || y > board.height {
+                Err("Index out of bounds")
+            } else {
+                board.toggle(x - 1, y - 1)
+            }
         } else {
             Err("Game not created yet")
         }
@@ -103,6 +108,14 @@ fn engine_toggle() {
     assert!(e.toggle(3, 7).is_ok());
     let b = e.board().unwrap();
     assert_eq!(b.get(2, 6).ok().unwrap(), true);
+
+    assert!(e.toggle(0, 0).is_err());
+    assert!(e.toggle(1, 0).is_err());
+    assert!(e.toggle(0, 1).is_err());
+    assert!(e.toggle(11, 1).is_err());
+    assert!(e.toggle(11, 11).is_err());
+    assert!(e.toggle(1, 11).is_err());
+    assert_eq!(e.toggle(0, 0).err().unwrap(), "Index out of bounds");
 }
 
 #[test]

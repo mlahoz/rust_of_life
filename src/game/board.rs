@@ -40,6 +40,31 @@ impl Board {
             Err("Invalid indexes")
         }
     }
+
+    pub fn neighbours(&self, x: usize, y: usize) -> u8 {
+
+        let mut count: u8 = 0;
+        let x_min;
+        let x_max;
+        let y_min;
+        let y_max;
+        if x > 0 { x_min = x - 1; } else { x_min = 0; }
+        if x < self.width - 1 { x_max = x + 1; } else { x_max = self.width - 1; }
+        if y > 0 { y_min = y - 1; } else { y_min = 0; }
+        if y < self.height - 1 { y_max = y + 1; } else { y_max = self.height -1; }
+
+        for i in x_min..x_max + 1 {
+            for j in y_min..y_max + 1 {
+                if !(i == x && j == y) {
+                    if self.get(i, j).ok().unwrap() {
+                        count += 1;
+                    }
+                }
+            }
+        }
+
+        count
+    }
 }
 
 impl fmt::Display for Board {
@@ -209,4 +234,41 @@ fn board_clone() {
                     ___X\n";
 
     assert_eq!(cloned.to_string(), expected);
+}
+
+#[test]
+fn board_neighbours() {
+    const W: usize = 6;
+    const H: usize = 4;
+
+    let mut b = Board::new(W, H);
+
+    for x in 0..b.width {
+        for y in 0..b.height {
+            assert_eq!(b.neighbours(x, y), 0);
+        }
+    }
+
+    assert!(b.set(0, 0, true).is_ok());
+    assert_eq!(b.neighbours(0, 0), 0);
+    assert_eq!(b.neighbours(1, 0), 1);
+    assert_eq!(b.neighbours(0, 1), 1);
+    assert_eq!(b.neighbours(1, 1), 1);
+
+    assert!(b.set(5, 3, true).is_ok());
+    assert_eq!(b.neighbours(5, 3), 0);
+    assert_eq!(b.neighbours(4, 2), 1);
+    assert_eq!(b.neighbours(5, 2), 1);
+    assert_eq!(b.neighbours(4, 3), 1);
+
+    assert!(b.set(0, 1, true).is_ok());
+    assert!(b.set(0, 2, true).is_ok());
+    assert!(b.set(0, 3, true).is_ok());
+    assert!(b.set(1, 1, true).is_ok());
+    assert!(b.set(1, 2, true).is_ok());
+    assert!(b.set(1, 3, true).is_ok());
+    assert!(b.set(2, 1, true).is_ok());
+    assert!(b.set(2, 2, true).is_ok());
+    assert!(b.set(2, 3, true).is_ok());
+    assert_eq!(b.neighbours(1, 2), 8);
 }
