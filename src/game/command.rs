@@ -4,7 +4,6 @@ pub enum Command {
     New { width: usize, height: usize},
     Toggle { x: usize, y: usize},
     Play,
-    Show,
     Quit
 }
 
@@ -16,7 +15,6 @@ pub fn parse_command(input: &str) -> Result<Command, &str> {
         match tokens[0] {
             "quit" | "q" => return Ok(Command::Quit),
             "play" | "p" => return Ok(Command::Play),
-            "show" | "s" => return Ok(Command::Show),
             c @ "new" | c @ "n" | c @ "toggle" | c @ "t" => {
                 if tokens.len() == 3 {
                     let first: usize = match tokens[1].parse() {
@@ -55,7 +53,6 @@ impl fmt::Display for Command {
         match *self {
             Command::Quit => write!(f, "Quit"),
             Command::Play => write!(f, "Play"),
-            Command::Show => write!(f, "Show"),
             Command::New { width, height } => write!(f, "New [width: {} height: {}]", width, height),
             Command::Toggle { x, y } => write!(f, "Toggle [x: {} y: {}]", x, y),
         }
@@ -151,21 +148,6 @@ fn command_play() {
     let error = parse_command("pla").err().unwrap();
     assert_eq!(error, "Unknown command");
 
-}
-
-#[test]
-fn command_show() {
-    let c = Command::Show;
-    assert_eq!(c.to_string(), "Show");
-
-    let pc = parse_command("show").ok().unwrap();
-    if let Command::Show = pc { assert!(true); } else { assert!(false); }
-
-    let pc = parse_command("s").ok().unwrap();
-    if let Command::Show = pc { assert!(true); } else { assert!(false); }
-
-    let error = parse_command("sh").err().unwrap();
-    assert_eq!(error, "Unknown command");
 }
 
 #[test]
