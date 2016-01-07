@@ -31,7 +31,28 @@ impl Engine {
 
     fn play(&mut self) -> Result<(), &str> {
         if self.board.is_some() {
-            Err("TODO!")
+            let board = self.board.as_mut().unwrap();
+            let cloned = board.clone();
+
+            for i in 0..board.width {
+                for j in 0..board.height {
+                    let is_alive = cloned.get(i, j).ok().unwrap();
+                    let neighbours = cloned.neighbours(i, j);
+                    if is_alive {
+                        match neighbours {
+                                0 | 1 => { board.set(i, j, false).is_ok(); },  // dies, by under-population
+                                2 | 3 => {},                                   // lives
+                                _ => { board.set(i, j, false).is_ok(); },      // dies, by over-population
+                        }
+                    } else {
+                        match neighbours {
+                                3 => { board.set(i, j, true).is_ok(); },       // borns, by reproduction
+                                _ => {},                                       // remains death
+                        }
+                    }
+                }
+            }
+            Ok(())
         } else {
             Err("Game not created yet")
         }
@@ -125,7 +146,7 @@ fn engine_play() {
     assert_eq!(e.play().err().unwrap(), "Game not created yet");
 
     assert!(e.process_command(command::Command::New { width: 10, height: 10 } ).is_ok());
-    assert!(e.play().is_err());
+    assert!(e.play().is_ok());
 }
 
 #[test]
@@ -149,5 +170,5 @@ fn engine_cmd_play() {
     assert_eq!(e.process_command(command::Command::Play).err().unwrap(), "Game not created yet");
 
     assert!(e.process_command(command::Command::New { width: 10, height: 10 } ).is_ok());
-    assert!(e.process_command(command::Command::Play).is_err());
+    assert!(e.process_command(command::Command::Play).is_ok());
 }
