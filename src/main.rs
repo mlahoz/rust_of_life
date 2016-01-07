@@ -32,6 +32,12 @@ fn main() {
                 break;
             } else {
                 loop {
+                    // This flag and the following {} block are needed as a workaround
+                    // for the strict borrowing rules of Rust:
+                    // the first mutable borrow when calling process_command was preventing the second
+                    // borrow when getting the board to print it
+                    // the {} block is needed to ensure the first borrow is released, the flag is needed
+                    // to save the result of the process_command to decide if the board should be printed
                     let mut command_ok = false;
                     {
                         let result = engine.process_command(command);
