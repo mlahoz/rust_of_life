@@ -1,9 +1,11 @@
 use std::fmt;
 
+#[derive(Copy,Clone)]
 pub enum Command {
     New { width: usize, height: usize},
     Toggle { x: usize, y: usize},
     Play,
+    Step,
     Quit
 }
 
@@ -15,6 +17,7 @@ pub fn parse_command(input: &str) -> Result<Command, &str> {
         match tokens[0] {
             "quit" | "q" => return Ok(Command::Quit),
             "play" | "p" => return Ok(Command::Play),
+            "step" | "s" => return Ok(Command::Step),
             c @ "new" | c @ "n" | c @ "toggle" | c @ "t" => {
                 if tokens.len() == 3 {
                     let first: usize = match tokens[1].parse() {
@@ -53,6 +56,7 @@ impl fmt::Display for Command {
         match *self {
             Command::Quit => write!(f, "Quit"),
             Command::Play => write!(f, "Play"),
+            Command::Step => write!(f, "Step"),
             Command::New { width, height } => write!(f, "New [width: {} height: {}]", width, height),
             Command::Toggle { x, y } => write!(f, "Toggle [x: {} y: {}]", x, y),
         }
@@ -162,5 +166,20 @@ fn command_quit() {
     if let Command::Quit = pc { assert!(true); } else { assert!(false); }
 
     let error = parse_command("qui").err().unwrap();
+    assert_eq!(error, "Unknown command");
+}
+
+#[test]
+fn command_step() {
+    let c = Command::Step;
+    assert_eq!(c.to_string(), "Step");
+
+    let pc = parse_command("step").ok().unwrap();
+    if let Command::Step = pc { assert!(true); } else { assert!(false); }
+
+    let pc = parse_command("s").ok().unwrap();
+    if let Command::Step = pc { assert!(true); } else { assert!(false); }
+
+    let error = parse_command("st").err().unwrap();
     assert_eq!(error, "Unknown command");
 }

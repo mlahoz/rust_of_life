@@ -5,6 +5,7 @@ use rust_of_life::game::engine;
 use std::io;
 use std::io::Write;
 use std::io::stdout;
+use std::thread;
 
 fn main() {
     println!("Welcome to Rust of Live!");
@@ -30,19 +31,27 @@ fn main() {
             if let command::Command::Quit = command {
                 break;
             } else {
-                let mut command_ok = false;
-                {
-                    let result = engine.process_command(command);
+                loop {
+                    let mut command_ok = false;
+                    {
+                        let result = engine.process_command(command);
 
-                    if result.is_ok() {
-                        command_ok = true;
-                    } else {
-                        println!("Error processing command: {}", result.err().unwrap());
+                        if result.is_ok() {
+                            command_ok = true;
+                        } else {
+                            println!("Error processing command: {}", result.err().unwrap());
+                        }
                     }
-                }
-                if command_ok {
-                    print!("{}", engine.board().unwrap());
-                    stdout().flush().is_ok();
+                    if command_ok {
+                        print!("{}", engine.board().unwrap());
+                        stdout().flush().is_ok();
+                    }
+
+                    if let command::Command::Play = command {
+                        thread::sleep_ms(1000);
+                    } else {
+                        break;
+                    }
                 }
             }
         } else {

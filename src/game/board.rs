@@ -1,5 +1,6 @@
 use std::fmt;
 
+#[derive(Clone)]
 pub struct Board {
     pub width: usize,
     pub height: usize,
@@ -74,14 +75,6 @@ impl fmt::Display for Board {
             acc + &line + "\n"
         });
         write!(f, "{}", display)
-    }
-}
-
-impl Clone for Board {
-    fn clone(&self) -> Self {
-        let mut cloned = Board::new(self.width, self.height);
-        cloned.board = self.board.clone();
-        cloned
     }
 }
 

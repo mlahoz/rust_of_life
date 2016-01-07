@@ -67,6 +67,7 @@ impl Engine {
                 Ok(())
             },
             command::Command::Play => self.play(),
+            command::Command::Step => self.play(),
             command::Command::New { width, height } => {
                 self.board = Some(board::Board::new(width, height));
                 Ok(())
@@ -161,6 +162,16 @@ fn engine_cmd_play() {
 
     assert!(e.process_command(command::Command::New { width: 10, height: 10 } ).is_ok());
     assert!(e.process_command(command::Command::Play).is_ok());
+}
+
+#[test]
+fn engine_cmd_step() {
+    let mut e = Engine::new();
+    assert!(e.process_command(command::Command::Step).is_err());
+    assert_eq!(e.process_command(command::Command::Step).err().unwrap(), "Game not created yet");
+
+    assert!(e.process_command(command::Command::New { width: 10, height: 10 } ).is_ok());
+    assert!(e.process_command(command::Command::Step).is_ok());
 }
 
 #[test]
